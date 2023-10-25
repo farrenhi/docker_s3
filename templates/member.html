@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title> Success Page </title>
+    <link rel="stylesheet" type="text/css" href="/week4.css" />
+    <!-- <script>
+        function add_delete_button() {
+            let element = document.getElementById("deleteForm{{ data_this_member_id }}"); //"deleteForm{{ member_id }}"     "{{ data_this_member_id }}"
+            element.style.display = "inline";
+            
+            // if (element.style.display === "none") {
+            //     element.style.display = "block";
+            // } else {
+            //     element.style.display = "none";
+            // }
+        }
+    </script> -->
+</head>
+
+<!-- <body onload="add_delete_button()"> -->
+<body>
+    <div class="container">
+        <div class="item1" id="top"> Member Page </div>
+        
+        <div class="item2">
+            <div>Hello, {{ data_name }}</div>
+            <div>Login Success!</div>
+            <div><a href="/messageboard" method="GET"> Message Board </a></div>
+            <br></br>
+            <div><a href="/signout" method="GET"> Log Out </a></div>
+            
+        </div>
+
+        <div class="item2">
+            <div class="item-title"> Look Up Name! </div>
+            <br></br>
+            <div>
+                <input type="text" id="usernameInput" placeholder="Enter username">
+                <button id="lookupButton">Lookup</button>
+            </div>
+            <div><p id="result"></p></div>
+        </div>
+        
+        <div class="item2">
+            <div class="item-title"> Update My Name! </div>
+            <br></br>
+            <div>
+                <input type="text" id="update_new_name" placeholder="Enter new name">
+                <button id="button_update_new_name">Update</button>
+            </div>
+            <div><p id="result_update_new_name"></p></div>
+        </div>
+
+
+
+
+    </div>
+
+    <script>
+        document.getElementById("lookupButton").addEventListener("click", () => {
+            const username = document.getElementById("usernameInput").value;
+            
+            const hostname = window.location.hostname;
+
+            // fetch(`http://127.0.0.1:3000/api/member?username=${username}`)
+
+            fetch(`http://${hostname}:3000/api/member?username=${username}`)
+                .then(response => response.json())
+
+                    // .then(response => response.text()) // You can use response.text() or response.json() here
+                    // .then(data => {
+                    //     const resultParagraph = document.getElementById("result");
+                    //     resultParagraph.textContent = data;
+                    // })
+                
+                
+                .then(data => {
+                    // Assuming the API returns data in the format: {"data":{"id":1,"name":"test2","username":"test"}}
+                    const resultParagraph = document.getElementById("result");
+                    if (data.error) {
+                        resultParagraph.textContent = data.error;
+                    } else {
+                        const userData = data.data;
+                        // resultParagraph.textContent = `ID: ${userData.id}, Username: ${userData.username}, Name: ${userData.name}`;
+                        resultParagraph.textContent = `${userData.name} (${userData.username}) `;
+                    }
+                })
+
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+        });
+
+
+        document.getElementById("button_update_new_name").addEventListener("click", () => {
+            const new_name = document.getElementById("update_new_name").value;
+            const hostname = window.location.hostname;
+
+            if (!new_name) {
+                alert("Please enter a new name.");
+                return;
+            }
+
+            // Construct the request body
+            const requestBody = {
+                name: new_name
+            };
+
+            fetch(`http://${hostname}:3000/api/member`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody) // Convert the request body to JSON format
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultParagraph = document.getElementById("result_update_new_name");
+                if (data.ok) {
+                    resultParagraph.textContent = `Name updated successfully.`;
+                } else if (data.error) {
+                    resultParagraph.textContent = `Error updating name.`;
+                } else {
+                    resultParagraph.textContent = `Something is wrong!`;
+                }
+            })
+
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        });
+
+        
+    </script>
+</body>    
+</html>
+
+

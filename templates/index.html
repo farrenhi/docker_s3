@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title> Home Page </title>
+    <link rel="stylesheet" type="text/css" href="/week4.css" />
+    
+</head>
+<body>
+    <div class="container">
+        <div class="item1" id="top"> Welcome! Please register an account. </div>
+        <!-- <form class="item2" id="loginForm" onsubmit="return validateForm()" action="/signin" method="POST"> -->
+
+        <!-- Registration box (top box) -->
+        <form class="item2" id="SignupForm" onsubmit="return validate_form_signup()" action="/signup" method="POST">
+            <div class="item-title"> Account Registration </div>
+            <div><p> Name <input type="text" id="name" name="name"/></p></div>
+            <div><p> Username <input type="text" id="username" name="username"/></p></div>
+            <div><p> Password <input type="password" id="password" name="password"/></p></div>
+            <!-- <div><p> User Agreement <input type="checkbox" id="agreement" name="agreement"></p></div>  -->
+            <div><button> Sign Up </button></div>
+        </form>
+        
+        <!-- Login system box (bottom box) -->
+        <form class="item2" id="loginForm" action="/signin" onsubmit="return validate_form_signin()" method="POST">
+            <div class="item-title"> Get Into the system </div>
+            <div><p> Username <input type="text" id="username_signin" name="username"/></p></div>
+            <div><p> Password <input type="password" id="password_signin" name="password"/></p></div>
+            <!-- <div><p> User Agreement <input type="checkbox" id="agreement" name="agreement"></p></div>  -->
+            <div><button> Login </button></div>
+        </form>
+
+        <!-- OK this part is previous homework about a square calculator -->
+        <!-- <form class="item2" id="item2" onsubmit="redirectToSquaredPage(event)" method="GET">
+            <div class="item-title"> Find the Square of a Number </div>
+            <div><p> Positive Integer <input type="text" id="numberInput" name="numberInput"/></p></div>
+            <div><button> Calculate! </button></div>
+        </form> -->
+    </div>
+
+    
+    <script>
+        function validate_form_signup() {
+            const nameInput = document.getElementById('name');
+            const name = nameInput.value;
+
+            const usernameInput = document.getElementById('username');
+            const username = usernameInput.value;
+
+            const passwordInput = document.getElementById('password');
+            const password = passwordInput.value;
+
+            if (name === "" || username === "" || password === "") {
+                alert("Please enter all info!");
+                return false; 
+            }
+
+            return true;
+        }
+
+        function validate_form_signin() {
+
+            const usernameInput = document.getElementById('username_signin');
+            const username = usernameInput.value;
+
+            const passwordInput = document.getElementById('password_signin');
+            const password = passwordInput.value;
+
+            if (username === "" || password === "") {
+                alert("Please enter both info!");
+                return false; 
+            }
+
+            return true;
+        }
+
+        // Question: How to combine validate_form all into one?
+
+
+        function validateForm() {
+            var agreementCheckbox = document.getElementById("agreement");
+            if (!agreementCheckbox.checked) {
+                // If the checkbox is not checked, prevent form submission.
+                alert("Please check the checkbox first");
+                return false; // Prevent form submission.
+            // If the checkbox is checked, allow form submission.
+            // You can perform additional validation or submit the form data here if needed.
+            }
+            return true;
+        }
+
+        function redirectToSquaredPage(event) {
+            event.preventDefault(); // Prevent form submission (default behavior)
+
+            /*By calling event.preventDefault();, you instruct the browser to prevent the default form submission behavior. In other words, the form data will not be sent to the server, and the page will not reload. Instead, the JavaScript code inside the redirectToSquaredPage function will handle the form data and perform the necessary validations before redirecting the user to the Squared Number Page.
+
+In summary, event.preventDefault(); is used to stop the default behavior of an event, allowing you to handle the event in a custom way using JavaScript code. In this specific case, it's used to handle the form submission and perform client-side validation before redirection. */
+
+            // Get the entered number from the input field
+            const numberInput = document.getElementById('numberInput');
+            const number = numberInput.value;
+
+            // Check if the entered text is a positive number
+            // parseFloat: convert the input number to a floating-point number
+            if (isNaN(number) || parseFloat(number) <= 0 || number === "" || !Number.isInteger(parseFloat(number))) {
+                alert("Please enter a positive number.");
+                return; // Exit the function, no redirection will occur
+            }
+            // Redirect to the Squared Number Page with the entered number appended to the path
+            window.location.href = `/square/${number}`;
+
+            /*window.location is a built-in JavaScript object that provides access to information about the current URL and enables page navigation. The href property is one of the properties of window.location, allowing you to interact with the current URL and handle page redirections easily. */
+        }
+    </script>
+
+</body>    
+</html>
