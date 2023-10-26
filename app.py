@@ -3,11 +3,23 @@ from dotenv import load_dotenv
 import os
 load_dotenv()  # take environment variables from .env.
 
-### Connection Pool
-import mysql.connector.pooling
+import boto3
+from datetime import datetime
+from werkzeug.utils import secure_filename
+
 # local parameters
 db_config_haha = os.getenv('db_config_haha')
 db_config_haha = eval(db_config_haha)
+
+# Initialize S3 client
+s3 = boto3.client(
+    "s3",
+    aws_access_key_id = os.getenv('s3_access'),
+    aws_secret_access_key = os.getenv('s3_secret'),
+)
+
+### Connection Pool
+import mysql.connector.pooling
 
 app = Flask(
     __name__,
@@ -16,8 +28,6 @@ app = Flask(
 )
 
 app.secret_key = os.getenv('app_secret_key') # session would need this!
-
-
 
 # Create a connection pool
 connection_pool = mysql.connector.pooling.MySQLConnectionPool(pool_name="mypool", pool_size=5, **db_config_haha)
@@ -55,7 +65,6 @@ def execute_query_read(query, data=None):
         connection.close()
         return myresult
 
-
 def execute_query_update(query, data=None):
     connection = connection_pool.get_connection()
     cursor = connection.cursor(dictionary=True)
@@ -86,13 +95,9 @@ def execute_query_delete(query, data=None):
         cursor.close()
         connection.close()
 
-
-
-
 @app.route("/") # , methods=["GET"]
 def index():
     return render_template("index.html")
-
 
 ## Version 3: Connection Pool!
 def get_info_from_sql(username):
@@ -116,14 +121,14 @@ def commit_info_into_sql(name, username, password):
 # https://chat.openai.com/c/4e9b8b76-7d77-4403-9a51-7054aac4203f
 # Question: so, what if we save the data as dictionary for message board?
 def get_all_messages_from_sql():
-    query = "SELECT message.content, member.name, message.member_id, message.id FROM message INNER JOIN member ON message.member_id = member.id;"
+    query = "SELECT message.content, member.name, message.member_id, message.id, message.cloudfront_link FROM message INNER JOIN member ON message.member_id = member.id;"
     return execute_query_read(query)    
 
 # Create function version 2
-def commit_to_sql_message(member_id, content):
+def commit_to_sql_message(member_id, content, cloudfront_link):
     '''this function would write data into SQL database Table message'''
-    query = "INSERT INTO message (member_id, content) VALUES (%s, %s)"
-    data = (member_id, content)
+    query = "INSERT INTO message (member_id, content, cloudfront_link) VALUES (%s, %s, %s)"
+    data = (member_id, content, cloudfront_link)
     execute_query_create(query, data)
 
 # Delete function version 2
@@ -202,8 +207,42 @@ def deleteMessage():
 def createMessage():
     content = request.form["message"]
     member_id = session.get("id")
-    commit_to_sql_message(member_id, content)
+   
+    current_datetime = datetime.now()
+    time_stamp = current_datetime.strftime("%Y%m%d%H%M%S%f")
+
+    # Get the uploaded file
+    uploaded_file = request.files['imageFile']
+    
+    if uploaded_file:
+        # Generate a unique name for the uploaded file
+        file_name = f"{member_id}_{time_stamp}_{secure_filename(uploaded_file.filename)}"
+
+        # Upload the file to S3
+        s3.upload_fileobj(uploaded_file, 'login-aws-docker', file_name)
+    
+        cloudfront_distribution_domain = os.getenv('cloudfront_distribution_domain')
+        cloudfront_link = generate_cloudfront_link(cloudfront_distribution_domain, file_name)
+    else:
+        cloudfront_link = None
+
+    # Save the message and S3 URL to your database
+    print(cloudfront_link)
+    commit_to_sql_message(member_id, content, cloudfront_link) #, s3_url
     return redirect(url_for("messageboard"))
+
+
+def generate_cloudfront_link(distribution_domain, object_key):
+    return f"https://{distribution_domain}/{object_key}"
+
+
+# # previous createMessage code
+# def createMessage():
+#     content = request.form["message"]
+#     member_id = session.get("id")
+#     commit_to_sql_message(member_id, content)
+#     return redirect(url_for("messageboard"))
+
 
 # Verification Endpoint
 @app.route("/signin", methods=["POST"])
@@ -255,7 +294,7 @@ def messageboard():
     if session.get("SIGNED-IN"):
         # User is signed in, render the success page.
         messages_for_board = get_all_messages_from_sql()
-        print(messages_for_board)
+        # print(messages_for_board)
         name = session.get("name")
         this_member_id = session.get("id")
         return render_template(

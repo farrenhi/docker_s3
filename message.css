@@ -3,10 +3,16 @@ body {
     padding: 0;
 }
 
-.container {
+.message_box {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #E8E8E8;
+}
+
+.container{
     border: 1px solid rgb(239, 230, 230);
     /* background-color: grey; */
-    max-width: 300px;
+    max-width: 600px;
     margin: 0 auto;
     margin-top: 100px;
     display: block; /* default display mode is block for <div> */

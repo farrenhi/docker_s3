@@ -65,7 +65,7 @@
 
             // fetch(`http://127.0.0.1:3000/api/member?username=${username}`)
 
-            fetch(`http://${hostname}:3000/api/member?username=${username}`)
+            fetch(`http://${hostname}:3002/api/member?username=${username}`)
                 .then(response => response.json())
 
                     // .then(response => response.text()) // You can use response.text() or response.json() here
@@ -107,7 +107,7 @@
                 name: new_name
             };
 
-            fetch(`http://${hostname}:3000/api/member`, {
+            fetch(`http://${hostname}:3002/api/member`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
