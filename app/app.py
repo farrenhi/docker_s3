@@ -7,9 +7,6 @@ import boto3
 from datetime import datetime
 from werkzeug.utils import secure_filename
 
-# local parameters
-db_config_haha = os.getenv('db_config_haha')
-db_config_haha = eval(db_config_haha)
 
 # Initialize S3 client
 s3 = boto3.client(
@@ -29,16 +26,19 @@ app = Flask(
 
 app.secret_key = os.getenv('app_secret_key') # session would need this!
 
-
 # local parameters
-# db_config_haha = os.getenv('db_config_haha')
-# db_config_haha = eval(db_config_haha)
-
-rds_db_config = os.getenv('rds_db_config')
-rds_db_config = eval(rds_db_config)
+# rds_db_config = os.getenv('rds_db_config')
+# rds_db_config = eval(rds_db_config)
 
 # Create a connection pool
 # connection_pool = mysql.connector.pooling.MySQLConnectionPool(pool_name="mypool", pool_size=5, **db_config_haha)
+
+rds_db_config = {'host': os.getenv('rds_host'), 
+                 'port': 3306, 
+                 'user': os.getenv('rds_user'), 
+                 'password': os.getenv('rds_password'), 
+                 'database': os.getenv('rds_database')}
+
 rds_connection_pool = mysql.connector.pooling.MySQLConnectionPool(pool_name="mypool_rds", pool_size=5, **rds_db_config)
 
 
