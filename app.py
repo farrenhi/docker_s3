@@ -29,12 +29,22 @@ app = Flask(
 
 app.secret_key = os.getenv('app_secret_key') # session would need this!
 
+
+# local parameters
+# db_config_haha = os.getenv('db_config_haha')
+# db_config_haha = eval(db_config_haha)
+
+rds_db_config = os.getenv('rds_db_config')
+rds_db_config = eval(rds_db_config)
+
 # Create a connection pool
-connection_pool = mysql.connector.pooling.MySQLConnectionPool(pool_name="mypool", pool_size=5, **db_config_haha)
+# connection_pool = mysql.connector.pooling.MySQLConnectionPool(pool_name="mypool", pool_size=5, **db_config_haha)
+rds_connection_pool = mysql.connector.pooling.MySQLConnectionPool(pool_name="mypool_rds", pool_size=5, **rds_db_config)
+
 
 # Function to execute a query using a connection from the pool
 def execute_query_create(query, data=None):
-    connection = connection_pool.get_connection()
+    connection = rds_connection_pool.get_connection()
     cursor = connection.cursor(dictionary=True)
     try:
         cursor.execute(query, data)
@@ -50,7 +60,7 @@ def execute_query_create(query, data=None):
 
 def execute_query_read(query, data=None):
     # To request a connection from the pool, use its get_connection() method: 
-    connection = connection_pool.get_connection() 
+    connection = rds_connection_pool.get_connection() 
     cursor = connection.cursor(dictionary=True)
     myresult = None
     try:
@@ -66,7 +76,7 @@ def execute_query_read(query, data=None):
         return myresult
 
 def execute_query_update(query, data=None):
-    connection = connection_pool.get_connection()
+    connection = rds_connection_pool.get_connection()
     cursor = connection.cursor(dictionary=True)
     try:
         cursor.execute(query, data)
@@ -81,7 +91,7 @@ def execute_query_update(query, data=None):
         connection.close()
 
 def execute_query_delete(query, data=None):
-    connection = connection_pool.get_connection()
+    connection = rds_connection_pool.get_connection()
     cursor = connection.cursor(dictionary=True)
     try:
         cursor.execute(query, data)
