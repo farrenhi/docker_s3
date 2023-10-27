@@ -26,13 +26,6 @@ app = Flask(
 
 app.secret_key = os.getenv('app_secret_key') # session would need this!
 
-# local parameters
-# rds_db_config = os.getenv('rds_db_config')
-# rds_db_config = eval(rds_db_config)
-
-# Create a connection pool
-# connection_pool = mysql.connector.pooling.MySQLConnectionPool(pool_name="mypool", pool_size=5, **db_config_haha)
-
 rds_db_config = {'host': os.getenv('rds_host'), 
                  'port': 3306, 
                  'user': os.getenv('rds_user'), 
