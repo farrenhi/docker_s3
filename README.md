@@ -1,6 +1,6 @@
 Member loging system with message board.
 
-Demo website: http://katanakawa.online:5000/  <br>
+Demo website: http://www.katanakawa.online/  <br>
 
 Keywords: member login system, message board with images, Amazon AWS S3, CloudFront, RDS, and docker
 
